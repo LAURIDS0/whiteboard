@@ -1,0 +1,8 @@
+@media (max-width: 600px) {
+  .whiteboard { width: 100%; height: 100%; top: 0; left: 0; border: 0; border-radius: 0; }
+  .options-panel { right: calc(0.5rem + var(--toolbar-width) + 0.75rem); }
+  .control-popover,
+  .layer-popover { right: 1rem; top: auto; bottom: 1rem; transform: none; }
+  .toast { bottom: 0.75rem; }
+  .dialog { width: min(20rem, 100%); }
+}

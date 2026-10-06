@@ -1,0 +1,34 @@
+.dialog-backdrop[hidden] { display: none; }
+.dialog-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(23 32 51 / 24%);
+  backdrop-filter: blur(4px);
+}
+.dialog {
+  width: min(22rem, 100%);
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: #fff;
+  box-shadow: 0 1.5rem 3rem rgb(31 45 61 / 18%);
+}
+.dialog-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.dialog h2 { margin: 0; font-size: 1rem; }
+.dialog-close { width: 2rem; height: 2rem; border: 0; border-radius: 50%; color: var(--muted); background: transparent; cursor: pointer; font-size: 1.35rem; line-height: 1; }
+.dialog-close:hover { background: var(--button); }
+.dialog label { display: block; margin-bottom: 0.4rem; color: var(--muted); font-size: 0.8rem; }
+.dialog input { width: 100%; padding: 0.7rem 0.75rem; border: 1px solid var(--line); border-radius: 0.5rem; color: var(--ink); outline: none; }
+.dialog input:focus { border-color: #4d8bd6; box-shadow: 0 0 0 3px rgb(77 139 214 / 16%); }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
+.dialog-button { padding: 0.6rem 0.8rem; border: 0; border-radius: 0.5rem; cursor: pointer; font-size: 0.85rem; }
+.dialog-button.secondary { color: var(--muted); background: var(--button); }
+.dialog-button.primary { color: #fff; background: var(--accent); }
+
+.dialog-message { margin: 0; color: var(--muted); font-size: 0.8rem; line-height: 1.4; }
+.dialog-button.danger { color: #fff; background: var(--danger); }
+.dialog-button.danger:hover { filter: brightness(0.96); }

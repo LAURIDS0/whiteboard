@@ -1,0 +1,125 @@
+.whiteboard-shell { position: fixed; inset: 0; }
+
+.whiteboard {
+  position: fixed;
+  top: 2vh;
+  left: 2vh;
+  width: 85vw;
+  height: 96vh;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--board-bg);
+  box-shadow: 0 1rem 2.5rem rgb(31 45 61 / 8%);
+}
+
+#whiteboard-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: default;
+}
+
+#object-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.board-object {
+  position: absolute;
+  min-width: 7rem;
+  min-height: 4rem;
+  padding: 0.75rem;
+  overflow: visible;
+  border: 1px solid rgb(23 32 51 / 12%);
+  border-radius: 0.6rem;
+  box-shadow: 0 0.4rem 1rem rgb(31 45 61 / 12%);
+  color: var(--ink);
+  pointer-events: auto;
+  user-select: none;
+  cursor: grab;
+  transform-origin: center center;
+}
+
+.board-object:active { cursor: grabbing; }
+.board-object.selected { outline: 2px solid #4d8bd6; outline-offset: 3px; }
+.board-object.hidden-by-filter { display: none; }
+
+.board-object.note { width: 10rem; min-height: 7rem; background: #fff5ae; }
+.board-object.note.paper {
+  background-color: #fff;
+  background-image: linear-gradient(#fff 97%, #e8edf2 97%);
+  background-size: 100% 1.35rem;
+}
+.board-object.note.checklist { background: #dff4e8; }
+.board-object.note.text { background: #fff; box-shadow: none; }
+
+.note-title,
+.note-body { display: block; outline: none; }
+.note-title { margin-bottom: 0.55rem; font-weight: 700; line-height: 1.15; }
+.note-body {
+  min-height: 2.5rem;
+  color: rgb(23 32 51 / 72%);
+  font-size: 0.8rem;
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+.note-title:focus,
+.note-body:focus { border-radius: 0.25rem; box-shadow: 0 0 0 2px rgb(36 104 189 / 25%); }
+
+.checklist-items { display: grid; gap: 0.35rem; }
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: rgb(23 32 51 / 78%);
+  font-size: 0.75rem;
+}
+.checklist-item input {
+  width: 0.85rem;
+  height: 0.85rem;
+  margin: 0;
+  accent-color: #2f8b63;
+}
+.checklist-item span { flex: 1; outline: none; }
+
+.board-object img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  pointer-events: none;
+  object-fit: contain;
+}
+.board-object.image { padding: 0.4rem; background: #fff; }
+.board-object.image::after {
+  content: attr(data-image-error);
+  display: none;
+  color: var(--danger);
+  font-size: 0.72rem;
+}
+.board-object.image[data-image-error="true"] img { display: none; }
+.board-object.image[data-image-error="true"]::after { display: block; }
+
+.object-controls { position: absolute; inset: 0; pointer-events: none; }
+.transform-handle {
+  position: absolute;
+  z-index: 2;
+  width: 0.75rem;
+  height: 0.75rem;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 1px 4px rgb(23 32 51 / 28%);
+  pointer-events: auto;
+}
+.transform-handle:disabled { opacity: 0.25; }
+.resize-handle { right: -0.45rem; bottom: -0.45rem; cursor: nwse-resize; }
+.rotate-handle { top: -2rem; left: 50%; transform: translateX(-50%); cursor: grab; }
+.board-object.editing-resize .resize-handle,
+.board-object.editing-rotate .rotate-handle { width: 0.95rem; height: 0.95rem; background: var(--accent-dark); }
+.rotate-connector { position: absolute; top: -1.3rem; left: 50%; width: 1px; height: 1.3rem; background: var(--accent); }
+
+.canvas-preview { pointer-events: none; }
