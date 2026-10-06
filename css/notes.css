@@ -1,0 +1,279 @@
+.board-object.note {
+  width: 13rem;
+  min-height: 8.5rem;
+  padding: 0;
+  overflow: visible;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none;
+  color: #172033;
+  filter: drop-shadow(0 0.45rem 0.8rem rgb(31 45 61 / 13%));
+}
+
+.note-content {
+  display: block;
+  box-sizing: border-box;
+  min-height: 8.5rem;
+  margin: 0;
+  padding: 0.75rem;
+  border: 0;
+  border-radius: 0.65rem;
+  outline: none;
+}
+
+.board-object.note.note-sticky .note-content { background: #fff4a8; }
+
+.board-object.note.note-paper .note-content { background: #ffffff; }
+
+.board-object.note.note-paper .note-content {
+  background-image: linear-gradient(to bottom, #ffffff 96%, #e7ecf1 96%);
+  background-size: 100% 1.35rem;
+}
+
+.board-object.note.note-checklist .note-content { background: #e4f4ea; }
+
+.board-object.note.note-text .note-content { background: #f4f6f8; }
+
+.note-body,
+.note-checklist-text {
+  display: block;
+  outline: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: rgb(23 32 51 / 82%);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.12em;
+  user-select: text;
+}
+
+.note-body {
+  min-height: 4.85rem;
+  cursor: text;
+}
+
+.markdown-help {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  display: grid;
+  gap: 0.5rem;
+  width: min(20rem, calc(100vw - 2rem));
+  padding: 0.75rem;
+  border: 1px solid rgb(23 32 51 / 10%);
+  border-radius: 0.7rem;
+  background: #ffffff;
+  box-shadow: 0 0.7rem 1.5rem rgb(31 45 61 / 14%);
+  color: #172033;
+  pointer-events: none;
+}
+
+.markdown-help[hidden] { display: none; }
+
+.markdown-help-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #172033;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.markdown-help-title i {
+  font-size: 0.82rem;
+}
+
+.markdown-help-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem 0.55rem;
+}
+
+.markdown-help-grid > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.markdown-help-grid code {
+  padding: 0.14rem 0.3rem;
+  border-radius: 0.3rem;
+  background: rgb(23 32 51 / 8%);
+  color: #172033;
+  font-size: 0.61rem;
+  white-space: nowrap;
+}
+
+.markdown-help-grid span {
+  min-width: 0;
+  overflow: hidden;
+  color: rgb(23 32 51 / 62%);
+  font-size: 0.62rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-body:not(.is-editing) {
+  white-space: normal;
+}
+
+.note-body:not(.is-editing) > :first-child { margin-top: 0; }
+.note-body:not(.is-editing) > :last-child { margin-bottom: 0; }
+
+.note-body p { margin: 0 0 0.5rem; }
+.note-body h1,
+.note-body h2,
+.note-body h3,
+.note-body h4,
+.note-body h5,
+.note-body h6 {
+  margin: 0 0 0.45rem;
+  color: #172033;
+  line-height: 1.15;
+}
+
+.note-body h1 { font-size: 1.15rem; }
+.note-body h2 { font-size: 1.03rem; }
+.note-body h3 { font-size: 0.94rem; }
+.note-body h4 { font-size: 0.88rem; }
+.note-body h5 { font-size: 0.84rem; }
+.note-body h6 { font-size: 0.8rem; }
+
+.note-body ul,
+.note-body ol {
+  margin: 0.25rem 0 0.55rem;
+  padding-left: 1.15rem;
+}
+
+.note-body li + li { margin-top: 0.18rem; }
+.note-body blockquote {
+  margin: 0.35rem 0 0.55rem;
+  padding-left: 0.65rem;
+  border-left: 0.2rem solid rgb(23 32 51 / 18%);
+  color: rgb(23 32 51 / 62%);
+}
+
+.note-body hr {
+  margin: 0.55rem 0;
+  border: 0;
+  border-top: 1px solid rgb(23 32 51 / 18%);
+}
+
+.note-body code {
+  padding: 0.1rem 0.25rem;
+  border-radius: 0.3rem;
+  background: rgb(23 32 51 / 8%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.74em;
+}
+
+.note-body pre {
+  margin: 0.35rem 0 0.55rem;
+  padding: 0.5rem 0.55rem;
+  overflow: auto;
+  border-radius: 0.4rem;
+  background: rgb(23 32 51 / 8%);
+  white-space: pre-wrap;
+}
+
+.note-body pre code {
+  padding: 0;
+  background: transparent;
+  white-space: pre-wrap;
+}
+
+
+.note-body:empty::before,
+.note-checklist-text:empty::before {
+  content: attr(data-placeholder);
+  color: rgb(23 32 51 / 40%);
+  pointer-events: none;
+}
+
+.note-body:focus,
+.note-checklist-text:focus {
+  border-radius: 0.25rem;
+  box-shadow: inset 0 0 0 2px rgb(36 104 189 / 20%);
+}
+
+.note-checklist-title {
+  display: block;
+  margin: 0 0 0.65rem;
+  min-height: 1.2rem;
+  outline: none;
+  color: #172033;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.2;
+  user-select: text;
+}
+
+.note-checklist-title:empty::before {
+  content: attr(data-placeholder);
+  color: rgb(23 32 51 / 38%);
+  pointer-events: none;
+}
+
+.note-checklist-title:focus {
+  border-radius: 0.25rem;
+  box-shadow: inset 0 0 0 2px rgb(47 139 99 / 16%);
+}
+
+.note-checklist {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.note-checklist-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.5rem;
+}
+
+.note-checklist-item input {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0.15rem 0 0;
+  accent-color: #2f8b63;
+  cursor: pointer;
+}
+
+.note-checklist-text {
+  min-height: 1.15rem;
+  cursor: text;
+}
+
+.note-add-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid rgb(47 139 99 / 30%);
+  border-radius: 0.45rem;
+  color: #2f8b63;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.note-add-item:hover { background: #f5faf7; }
+.note-add-item:active { transform: translateY(1px); }
+
+.note-checklist-item input:checked + .note-checklist-text {
+  color: rgb(23 32 51 / 42%);
+  text-decoration: line-through;
+}
+
+.board-object.note.note-text .note-content {
+  border: 1px solid rgb(23 32 51 / 12%);
+  box-shadow: 0 0.45rem 0.9rem rgb(31 45 61 / 16%);
+}

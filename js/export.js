@@ -80,7 +80,9 @@
           exportCtx.fillText('Billede kunne ikke indlæses', -w / 2 + 10, 4);
         }
       } else if (object.classList.contains('note')) {
-        exportCtx.fillStyle = object.classList.contains('checklist') ? '#dff4e8' : object.classList.contains('paper') ? '#fff' : object.classList.contains('text') ? '#fff' : '#fff5ae';
+        const noteType = object.dataset.noteType || 'sticky';
+        const fill = noteType === 'checklist' ? '#e6f6ec' : noteType === 'sticky' ? '#fff7b8' : '#fff';
+        exportCtx.fillStyle = fill;
         roundedRect(exportCtx, -w / 2, -h / 2, w, h, 10);
         exportCtx.fill();
         exportCtx.strokeStyle = 'rgb(23 32 51 / 12%)';
@@ -94,8 +96,8 @@
 
         exportCtx.font = '12px sans-serif';
         exportCtx.fillStyle = 'rgb(23 32 51 / 72%)';
-        if (object.classList.contains('checklist')) {
-          [...object.querySelectorAll('.checklist-item')].forEach((row, index) => {
+        if (noteType === 'checklist') {
+          [...object.querySelectorAll('.note-checklist-item')].forEach((row, index) => {
             const y = -h / 2 + 48 + index * 20;
             exportCtx.strokeStyle = '#2f8b63';
             exportCtx.strokeRect(-w / 2 + 12, y - 9, 10, 10);
@@ -107,7 +109,7 @@
               exportCtx.stroke();
             }
             exportCtx.fillStyle = '#172033';
-            exportCtx.fillText(row.querySelector('span')?.textContent || '', -w / 2 + 28, y);
+            drawText(exportCtx, row.querySelector('.note-checklist-text')?.textContent || '', -w / 2 + 28, y, w - 40, 16, 2);
           });
         } else {
           drawText(exportCtx, object.querySelector('.note-body')?.textContent, -w / 2 + 12, -h / 2 + 50, w - 24, 16, 8);

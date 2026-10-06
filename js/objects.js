@@ -99,54 +99,13 @@
       }, { once: true });
       object.append(image);
     } else if (object.classList.contains('note')) {
-      renderNote(object, data);
+      app.notes.render(object, data);
     } else {
       object.textContent = data.content || 'Objekt';
     }
 
     bindObject(object);
     return object;
-  }
-
-  function renderNote(object, data) {
-    const title = document.createElement('div');
-    const body = document.createElement('div');
-    title.className = 'note-title';
-    title.contentEditable = 'true';
-    title.textContent = data.title || '';
-    body.className = 'note-body';
-
-    if (object.classList.contains('checklist')) {
-      const items = Array.isArray(data.items) && data.items.length ? data.items : [
-        { text: 'Før afgang', checked: false },
-        { text: 'Tjek olie', checked: false },
-        { text: 'Klar til marken', checked: false }
-      ];
-      const list = document.createElement('div');
-      list.className = 'checklist-items';
-      items.forEach((entry) => {
-        const row = document.createElement('label');
-        row.className = 'checklist-item';
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = Boolean(entry.checked);
-        const text = document.createElement('span');
-        text.contentEditable = 'true';
-        text.textContent = entry.text || '';
-        checkbox.addEventListener('change', () => app.history.saveHistory());
-        text.addEventListener('blur', () => app.history.saveHistory());
-        row.append(checkbox, text);
-        list.append(row);
-      });
-      body.append(list);
-    } else {
-      body.contentEditable = 'true';
-      body.textContent = data.body || '';
-    }
-
-    title.addEventListener('blur', () => app.history.saveHistory());
-    body.addEventListener('blur', () => app.history.saveHistory());
-    object.append(title, body);
   }
 
   function bindObject(object) {
@@ -159,12 +118,20 @@
         if (canErase) removeObject(object);
         return;
       }
-      if (state.activeTool === 'select') selectObject(object);
+      if (state.activeTool !== 'select') return;
+
+      selectObject(object);
+
+      if (!object.classList.contains('note') || state.dragState?.object === object && state.dragState?.moved) return;
+      if (event.target.closest('.transform-handle, button, input, textarea, select, a')) return;
+
+      const editor = object.querySelector('.note-body, .note-checklist-title, .note-checklist-text');
+      editor?.focus();
     });
 
     object.addEventListener('dblclick', (event) => {
       if (state.activeTool === 'erase') return;
-      const target = event.target.closest('.note-title, .note-body, .checklist-item span');
+      const target = event.target.closest('.note-body, .note-checklist-title, .note-checklist-text');
       if (target) {
         event.stopPropagation();
         target.focus();
@@ -172,11 +139,10 @@
     });
 
     object.addEventListener('pointerdown', (event) => {
-      if (event.target.closest('.transform-handle, [contenteditable], input')) return;
+      if (event.target.closest('.transform-handle, button, input, textarea, select, a')) return;
       if (state.activeTool === 'erase') return;
       if (state.activeTool !== 'select' || state.transformMode) return;
-      event.preventDefault();
-      event.stopPropagation();
+
       selectObject(object);
       state.dragState = {
         object,
@@ -185,9 +151,9 @@
         startY: event.clientY,
         left: object.offsetLeft,
         top: object.offsetTop,
-        moved: false
+        moved: false,
+        threshold: 6
       };
-      object.setPointerCapture(event.pointerId);
     });
 
     object.addEventListener('pointermove', (event) => {
@@ -195,7 +161,16 @@
       if (!drag || drag.object !== object || drag.pointerId !== event.pointerId) return;
       const dx = event.clientX - drag.startX;
       const dy = event.clientY - drag.startY;
-      if (Math.hypot(dx, dy) > 1) drag.moved = true;
+
+      if (!drag.moved && Math.hypot(dx, dy) >= drag.threshold) {
+        drag.moved = true;
+        event.preventDefault();
+        event.stopPropagation();
+        object.setPointerCapture?.(event.pointerId);
+      }
+
+      if (!drag.moved) return;
+      event.preventDefault();
       object.style.left = `${drag.left + dx}px`;
       object.style.top = `${drag.top + dy}px`;
     });
@@ -360,9 +335,7 @@
   }
 
   async function addNote(type) {
-    const title = await app.ui.openInputDialog('Ny note', 'Overskrift', 'Skriv en overskrift...');
-    if (!title) return;
-    createObject(`note ${type}`, { title, label: title });
+    return app.notes.create(type);
   }
 
   function addImageFromUpload() {
@@ -429,15 +402,7 @@
       result.source = object.dataset.source || '';
       result.alt = object.querySelector('img')?.alt || 'Indsat billede';
     } else if (object.classList.contains('note')) {
-      result.title = object.querySelector('.note-title')?.textContent || '';
-      if (object.classList.contains('checklist')) {
-        result.items = [...object.querySelectorAll('.checklist-item')].map((row) => ({
-          text: row.querySelector('span')?.textContent || '',
-          checked: Boolean(row.querySelector('input')?.checked)
-        }));
-      } else {
-        result.body = object.querySelector('.note-body')?.textContent || '';
-      }
+      Object.assign(result, app.notes.serialize(object));
     } else {
       result.content = object.textContent || '';
     }

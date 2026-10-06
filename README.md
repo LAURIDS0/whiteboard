@@ -5,11 +5,13 @@ En standalone whiteboard-hjemmeside uden backend.
 ## Struktur
 
 - `index.html` — UI, værktøjer og dialoger.
-- `css/` — opdelt styling for board, værktøjer, dialoger og responsive regler.
+- `css/` — opdelt styling for board, noter, værktøjer, dialoger og responsive regler.
 - `js/state.js` — fælles state og DOM-referencer.
 - `js/ui.js` — paneler, kontrol-popover, dialoger, lagliste og feedback.
 - `js/canvas.js` — blyant, pensel, markør, linjer, former og viskelæder på canvas.
-- `js/objects.js` — noter, billeder, flytning, rotation, størrelsesændring og lag.
+- `js/objects.js` — generel objekt-håndtering, billeder, flytning, rotation, størrelsesændring og lag.
+- `js/notes.js` — samlet note-system med én fælles datamodel, rendering, redigering, tjeklister og serialisering.
+- `css/notes.css` — note-specifik styling.
 - `js/history.js` — undo/redo og automatisk lokal browser-gemning.
 - `js/export.js` — PNG-eksport af både canvas og objekter.
 - `js/app.js` — event wiring, værktøjslogik og tastaturgenveje.
@@ -40,3 +42,12 @@ Uploadede og indsatte billeder får automatisk en kontrolleret størrelse, der h
 ## Afhængigheder
 
 Projektet bruger Font Awesome via CDN til ikonerne. Resten af applikationen kræver ingen npm-installation eller backend.
+
+
+## Noter
+
+Alle noter bruger samme grundstruktur: `noteType`, `title` og enten `body` eller `items`. Note-typen styrer kun udseendet og tjeklistefunktionen. Gamle gemte noter migreres automatisk til den nye struktur ved indlæsning.
+
+
+## Note behavior
+Notes are created without a title dialog. Clicking a note opens its content for editing, while dragging the note moves it after a small pointer movement threshold.

@@ -43,11 +43,6 @@
       return;
     }
 
-    if (control === 'pen-color' || control === 'line-color' || control === 'shape-color') {
-      app.ui.openColorControl('Farve', state.color, (value) => { state.color = value; });
-      return;
-    }
-
     if (option.dataset.action === 'shapes') {
       app.ui.setPanel('shapes');
       state.activeTool = 'shape';
@@ -94,7 +89,7 @@
       app.canvas.updateCursor();
     }
 
-    if (panel === 'notes' && ['sticky', 'paper', 'checklist', 'text'].includes(action)) app.objects.addNote(action);
+    if (panel === 'notes' && ['sticky', 'paper', 'checklist', 'text'].includes(action)) app.notes.create(action);
 
     if (panel === 'images') {
       if (action === 'upload') app.objects.addImageFromUpload();
@@ -130,6 +125,7 @@
 
   function handleTool(button) {
     const id = button.id;
+    if (id === 'color') return app.ui.toggleColorPopover();
     if (id === 'undo') return app.history.undo();
     if (id === 'redo') return app.history.redo();
     if (id === 'save') return app.exporter.exportWhiteboard();

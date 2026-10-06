@@ -19,13 +19,14 @@
   }
 
   function openRangeControl(title, min, max, step, value, suffix, update, recordHistory = false) {
+    closeColorPopover();
+    closeLayerPopover();
     dom.controlTitle.textContent = title;
     dom.controlRange.min = String(min);
     dom.controlRange.max = String(max);
     dom.controlRange.step = String(step);
     dom.controlRange.value = String(value);
     dom.controlRangeRow.hidden = false;
-    dom.controlColorRow.hidden = true;
     dom.controlValue.textContent = `${value}${suffix}`;
     state.controlChanged = false;
     state.controlRecordHistory = recordHistory;
@@ -37,26 +38,46 @@
     dom.controlPopover.hidden = false;
   }
 
-  function openColorControl(title, value, update, recordHistory = false) {
-    dom.controlTitle.textContent = title;
-    dom.controlRangeRow.hidden = true;
-    dom.controlColorRow.hidden = false;
-    dom.controlColor.value = normalizeHex(value);
-    state.controlChanged = false;
-    state.controlRecordHistory = recordHistory;
-    state.controlUpdate = (nextValue) => {
-      state.controlChanged = true;
-      update(nextValue);
-    };
-    dom.controlPopover.hidden = false;
-  }
-
   function normalizeHex(value) {
     if (!value) return '#111827';
-    if (/^#[0-9a-f]{6}$/i.test(value)) return value;
+    if (/^#[0-9a-f]{6}$/i.test(value)) return value.toLowerCase();
     const match = value.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
     if (!match) return '#111827';
     return `#${[match[1], match[2], match[3]].map((part) => Number(part).toString(16).padStart(2, '0')).join('')}`;
+  }
+
+  function updateColorIndicator(value = state.color) {
+    const color = normalizeHex(value);
+    dom.colorInput.value = color;
+    dom.colorPreviewSwatch.style.backgroundColor = color;
+    dom.colorValue.textContent = color.toUpperCase();
+    dom.colorToolSwatch.style.backgroundColor = color;
+    dom.colorToolSwatch.style.boxShadow = `inset 0 0 0 1px color-mix(in srgb, ${color} 55%, #172033 45%)`;
+    dom.colorToolSwatch.setAttribute('aria-label', `Valgt farve ${color}`);
+  }
+
+  function closeColorPopover() {
+    dom.colorPopover.hidden = true;
+    document.getElementById('color')?.classList.remove('active');
+  }
+
+  function openColorPopover() {
+    closeControlPopover();
+    closeLayerPopover();
+    updateColorIndicator(state.color);
+    dom.colorPopover.hidden = false;
+    document.getElementById('color')?.classList.add('active');
+  }
+
+  function toggleColorPopover() {
+    if (dom.colorPopover.hidden) openColorPopover();
+    else closeColorPopover();
+  }
+
+  function setColor(value) {
+    const color = normalizeHex(value);
+    state.color = color;
+    updateColorIndicator(color);
   }
 
   function openInputDialog(title, label, placeholder, submitLabel = 'Tilføj') {
@@ -65,6 +86,7 @@
     dom.dialogInput.placeholder = placeholder;
     dom.dialogInput.value = '';
     dom.inputDialog.querySelector('.dialog-button.primary').textContent = submitLabel;
+    closeTransientPopovers();
     dom.dialogBackdrop.hidden = false;
     requestAnimationFrame(() => dom.dialogInput.focus());
     return new Promise((resolve) => { state.dialogResolver = resolve; });
@@ -83,6 +105,7 @@
     dom.confirmTitle.textContent = title;
     dom.confirmMessage.textContent = message;
     dom.confirmSubmit.textContent = confirmLabel;
+    closeTransientPopovers();
     dom.confirmBackdrop.hidden = false;
     requestAnimationFrame(() => dom.confirmSubmit.focus());
     return new Promise((resolve) => { state.confirmResolver = resolve; });
@@ -96,9 +119,14 @@
     resolver(value);
   }
 
-  function selectTool(toolId) {
+  function closeTransientPopovers() {
     closeControlPopover();
+    closeColorPopover();
     closeLayerPopover();
+  }
+
+  function selectTool(toolId) {
+    closeTransientPopovers();
 
     dom.toolButtons.forEach((button) => button.classList.toggle('active', button.id === toolId));
     if (!['undo', 'redo', 'save', 'clear'].includes(toolId)) state.activePanel = toolId;
@@ -174,7 +202,7 @@
       const name = document.createElement('button');
       name.type = 'button';
       name.className = 'layer-name';
-      name.textContent = object.dataset.label || object.querySelector('.note-title')?.textContent || (object.classList.contains('image') ? 'Billede' : 'Objekt');
+      name.textContent = object.dataset.label || (object.classList.contains('note') ? app.notes.getLabel(object) : object.classList.contains('image') ? 'Billede' : 'Objekt');
       name.addEventListener('click', () => {
         app.objects.selectObject(object);
         closeLayerPopover();
@@ -198,6 +226,8 @@
   }
 
   function openLayerPopover() {
+    closeControlPopover();
+    closeColorPopover();
     renderLayerList();
     dom.layerPopover.hidden = false;
   }
@@ -218,23 +248,37 @@
   dom.confirmBackdrop.addEventListener('click', (event) => { if (event.target === dom.confirmBackdrop) closeConfirmDialog(false); });
   dom.dialogBackdrop.addEventListener('click', (event) => { if (event.target === dom.dialogBackdrop) closeInputDialog(); });
   dom.controlRange.addEventListener('input', () => state.controlUpdate?.(dom.controlRange.value));
-  dom.controlColor.addEventListener('input', () => state.controlUpdate?.(dom.controlColor.value));
   dom.controlClose.addEventListener('click', closeControlPopover);
-  dom.controlPipette.addEventListener('click', () => {
+  dom.colorInput.addEventListener('input', () => setColor(dom.colorInput.value));
+  dom.colorPreview.addEventListener('click', () => dom.colorInput.click());
+  dom.colorClose.addEventListener('click', closeColorPopover);
+  dom.colorPipette.addEventListener('click', () => {
     state.drawMode = 'pipette';
     state.activeTool = 'pipette';
-    closeControlPopover();
+    closeColorPopover();
     setCanvasCursor('crosshair');
     showToast('Klik på tavlen for at vælge en farve.');
   });
   dom.layerClose.addEventListener('click', closeLayerPopover);
 
+  document.addEventListener('pointerdown', (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+    const insideOpenPopover = target.closest('#control-popover, #color-popover, #layer-popover');
+    const isPopoverTrigger = target.closest('#color, [data-control], [data-action="layer-order"], #layers');
+    if (!insideOpenPopover && !isPopoverTrigger) closeTransientPopovers();
+  });
+
   app.ui = {
     showToast,
     closeControlPopover,
     openRangeControl,
-    openColorControl,
     normalizeHex,
+    updateColorIndicator,
+    setColor,
+    openColorPopover,
+    closeColorPopover,
+    toggleColorPopover,
     openInputDialog,
     closeInputDialog,
     openConfirmDialog,
@@ -251,4 +295,6 @@
     updateHistoryButtons,
     updateSelectionControls
   };
+
+  updateColorIndicator(state.color);
 })();

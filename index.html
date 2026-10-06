@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#eef2f6">
   <title>Whiteboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/board.css">
+  <link rel="stylesheet" href="css/notes.css">
   <link rel="stylesheet" href="css/tools.css">
   <link rel="stylesheet" href="css/dialog.css">
   <link rel="stylesheet" href="css/responsive.css">
   <script src="js/state.js" defer></script>
   <script src="js/ui.js" defer></script>
   <script src="js/canvas.js" defer></script>
+  <script src="js/notes.js" defer></script>
   <script src="js/objects.js" defer></script>
   <script src="js/history.js" defer></script>
   <script src="js/export.js" defer></script>
@@ -40,7 +41,6 @@
       <button type="button" class="option active" data-option="pencil"><i class="fa-solid fa-pencil"></i>Blyant</button>
       <button type="button" class="option" data-option="brush"><i class="fa-solid fa-paintbrush"></i>Pensel</button>
       <button type="button" class="option" data-option="marker"><i class="fa-solid fa-highlighter"></i>Markør</button>
-      <button type="button" class="option" data-control="pen-color"><i class="fa-solid fa-palette"></i>Farve</button>
       <button type="button" class="option" data-control="pen-thickness"><i class="fa-solid fa-arrows-left-right"></i>Tykkelse</button>
       <button type="button" class="option" data-control="pen-opacity"><i class="fa-solid fa-eye"></i>Gennemsigtighed</button>
       <button type="button" class="option" data-action="shapes"><i class="fa-solid fa-shapes"></i>Former</button>
@@ -51,7 +51,6 @@
       <button type="button" class="option" data-option="circle"><i class="fa-regular fa-circle"></i>Cirkel</button>
       <button type="button" class="option" data-option="triangle"><i class="fa-solid fa-play"></i>Trekant</button>
       <button type="button" class="option" data-option="star"><i class="fa-solid fa-star"></i>Stjerne</button>
-      <button type="button" class="option" data-control="shape-color"><i class="fa-solid fa-palette"></i>Farve</button>
       <button type="button" class="option" data-control="shape-thickness"><i class="fa-solid fa-arrows-left-right"></i>Tykkelse</button>
     </section>
 
@@ -79,7 +78,6 @@
       <button type="button" class="option" data-option="parallel"><i class="fa-solid fa-arrows-left-right-to-line"></i>Parallel</button>
       <button type="button" class="option" data-option="arrow"><i class="fa-solid fa-arrow-right"></i>Pil</button>
       <button type="button" class="option" data-option="dotted"><i class="fa-solid fa-ellipsis"></i>Prikket</button>
-      <button type="button" class="option" data-control="line-color"><i class="fa-solid fa-palette"></i>Farve</button>
       <button type="button" class="option" data-control="line-thickness"><i class="fa-solid fa-arrows-left-right"></i>Tykkelse</button>
     </section>
 
@@ -101,11 +99,24 @@
       <input id="control-range" type="range">
       <output id="control-value"></output>
     </label>
-    <div class="control-color-row" id="control-color-row" hidden>
-      <span>Farve</span>
-      <input id="control-color" type="color" value="#111827" aria-label="Vælg farve">
-      <button id="control-pipette" type="button"><i class="fa-solid fa-eye-dropper"></i>Pipette</button>
+  </div>
+
+  <div class="color-popover" id="color-popover" hidden>
+    <div class="color-popover-header">
+      <strong>Farve</strong>
+      <button id="color-close" type="button" aria-label="Luk farve">&times;</button>
     </div>
+    <div class="color-picker-body">
+      <button class="color-preview" id="color-preview" type="button" aria-label="Åbn farvevælger">
+        <span id="color-preview-swatch"></span>
+      </button>
+      <div class="color-picker-copy">
+        <strong id="color-value">#111827</strong>
+        <span>Vælg farve til pen, linjer og former</span>
+      </div>
+      <input id="color-input" type="color" value="#111827" aria-label="Vælg farve">
+    </div>
+    <button class="color-pipette" id="color-pipette" type="button"><i class="fa-solid fa-eye-dropper"></i>Pipette</button>
   </div>
 
   <div class="dialog-backdrop" id="dialog-backdrop" hidden>
@@ -150,6 +161,11 @@
   <nav class="toolsbar" aria-label="Whiteboard værktøjer">
     <button type="button" class="tool" id="wall" data-tool="wall"><i class="fa-solid fa-border-all"></i>Væg</button>
     <button type="button" class="tool" id="pen" data-tool="pen"><i class="fa-solid fa-pen"></i>Pen</button>
+    <button type="button" class="tool tool-color" id="color" data-tool="color" aria-label="Farve" title="Farve">
+      <span class="tool-color-icon"><i class="fa-solid fa-palette"></i></span>
+      <span>Farve</span>
+      <span class="tool-color-swatch" id="color-tool-swatch"></span>
+    </button>
     <button type="button" class="tool" id="erase" data-tool="erase"><i class="fa-solid fa-eraser"></i>Viskelæder</button>
     <button type="button" class="tool" id="notes" data-tool="notes"><i class="fa-solid fa-note-sticky"></i>Noter</button>
     <button type="button" class="tool" id="images" data-tool="images"><i class="fa-solid fa-image"></i>Billeder</button>
